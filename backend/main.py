@@ -34,7 +34,7 @@ app = FastAPI(
 
 ALLOWED_ORIGINS = os.environ.get(
     "ALLOWED_ORIGINS",
-    "http://localhost:5173,http://localhost:4173",
+    "http://localhost:5173,http://localhost:4173,https://ajaia-llc-ai-native-full-stack-deve-sepia.vercel.app",
 ).split(",")
 
 app.add_middleware(
