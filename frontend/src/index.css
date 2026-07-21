@@ -487,7 +487,7 @@ body,
   gap: 14px;
   min-height: 58px;
   position: relative;
-  z-index: 10;
+  z-index: 20;
 }
 
 .doc-title-input {
@@ -1135,4 +1135,144 @@ body,
   display: flex;
   align-items: center;
   gap: 7px;
+}
+
+/* ── Export Dropdown ─────────────────────────────────────────────────────────── */
+.export-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  min-width: 170px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+  animation: fadeInDropdown 0.15s ease;
+}
+
+@keyframes fadeInDropdown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.export-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background var(--transition);
+}
+
+.export-dropdown-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* ── Print Styles ────────────────────────────────────────────────────────────── */
+@media print {
+  body, html, #root {
+    background: #ffffff !important;
+    color: #000000 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Hide UI elements */
+  .sidebar,
+  .save-status,
+  .editor-topbar button,
+  .editor-topbar .export-dropdown-container,
+  .viewer-banner,
+  .editor-toolbar,
+  .modal-backdrop,
+  .upload-modal,
+  .share-modal {
+    display: none !important;
+  }
+
+  .app-layout {
+    display: block !important;
+    background: #ffffff !important;
+  }
+
+  .editor-area {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+  }
+
+  .editor-topbar {
+    border-bottom: none !important;
+    padding: 0 !important;
+    min-height: auto !important;
+    margin-bottom: 20px !important;
+    display: block !important;
+  }
+
+  .doc-title-input {
+    border: none !important;
+    padding: 0 !important;
+    font-size: 24pt !important;
+    font-weight: bold !important;
+    color: #000000 !important;
+    margin-bottom: 10px !important;
+    width: 100% !important;
+  }
+
+  .editor-scroll {
+    overflow: visible !important;
+    height: auto !important;
+    padding: 0 !important;
+  }
+
+  .editor-page {
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+    background: #ffffff !important;
+  }
+
+  .ProseMirror {
+    padding: 0 !important;
+    border: none !important;
+    font-family: Georgia, serif !important;
+    font-size: 12pt !important;
+    line-height: 1.6 !important;
+    color: #000000 !important;
+    background: #ffffff !important;
+  }
+
+  /* Page break rules */
+  h1, h2, h3 {
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+
+  p, blockquote, pre, ul, ol, li {
+    page-break-inside: avoid;
+  }
 }

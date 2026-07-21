@@ -9,6 +9,8 @@ const DEMO_USERS = [
 ]
 
 export default function LoginPage() {
+  const [isSignup, setIsSignup] = useState(false)
+  const [name, setName]         = useState('')
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [error, setError]       = useState('')
@@ -20,10 +22,15 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
     try {
-      const res = await api.post('/auth/login', { email, password })
-      login(res.data.user, res.data.access_token)
+      if (isSignup) {
+        const res = await api.post('/auth/signup', { name, email, password })
+        login(res.data.user, res.data.access_token)
+      } else {
+        const res = await api.post('/auth/login', { email, password })
+        login(res.data.user, res.data.access_token)
+      }
     } catch (err) {
-      setError(err.response?.data?.detail || 'Login failed. Please try again.')
+      setError(err.response?.data?.detail || 'Authentication failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -36,16 +43,49 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <div className="login-logo">
-          <div className="login-logo-icon">📝</div>
-          <div className="login-logo-title">Ajaia Docs</div>
-          <div className="login-logo-sub">Collaborative document editor</div>
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="auth-logo">
+          <div className="auth-logo-icon">📝</div>
+          <h1 className="auth-logo-title">Ajaia Docs</h1>
+          <div className="auth-logo-sub">Collaborative document editor</div>
         </div>
 
-        <form className="login-form" onSubmit={handleSubmit}>
-          {error && <div className="login-error">{error}</div>}
+        {/* Tab Switcher */}
+        <div className="auth-tabs">
+          <button
+            type="button"
+            className={`auth-tab ${!isSignup ? 'active' : ''}`}
+            onClick={() => { setIsSignup(false); setError(''); }}
+          >
+            Sign In
+          </button>
+          <button
+            type="button"
+            className={`auth-tab ${isSignup ? 'active' : ''}`}
+            onClick={() => { setIsSignup(true); setError(''); }}
+          >
+            Sign Up
+          </button>
+        </div>
+
+        <form className="auth-form" onSubmit={handleSubmit}>
+          {error && <div className="auth-error">{error}</div>}
+
+          {isSignup && (
+            <div className="form-group">
+              <label className="form-label">Name</label>
+              <input
+                className="input"
+                type="text"
+                placeholder="Your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                autoFocus
+              />
+            </div>
+          )}
 
           <div className="form-group">
             <label className="form-label">Email</label>
@@ -56,7 +96,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              autoFocus
+              autoFocus={!isSignup}
             />
           </div>
 
@@ -72,24 +112,33 @@ export default function LoginPage() {
             />
           </div>
 
-          <button className="btn btn-primary" type="submit" disabled={loading} style={{ marginTop: 4 }}>
-            {loading ? <><span className="spinner"></span> Signing in…</> : 'Sign in'}
+          <button className="btn btn-primary auth-submit" type="submit" disabled={loading}>
+            {loading ? (
+              <>
+                <span className="spinner"></span> {isSignup ? 'Creating account…' : 'Signing in…'}
+              </>
+            ) : (
+              isSignup ? 'Create account' : 'Sign in'
+            )}
           </button>
         </form>
 
-        <div className="demo-accounts">
-          <div className="demo-accounts-title">🔑 Demo Accounts (click to fill)</div>
-          {DEMO_USERS.map((u) => (
-            <button key={u.email} className="demo-account-btn" type="button" onClick={() => fillDemo(u)}>
-              <div className="demo-avatar" style={{ background: u.color }}>{u.name[0]}</div>
-              <div className="demo-user-info">
-                <div className="demo-name">{u.name}</div>
-                <div className="demo-email">{u.email} · password123</div>
-              </div>
-            </button>
-          ))}
-        </div>
+        {!isSignup && (
+          <div className="demo-accounts">
+            <div className="demo-accounts-title">🔑 Demo Accounts (click to fill)</div>
+            {DEMO_USERS.map((u) => (
+              <button key={u.email} className="demo-account-btn" type="button" onClick={() => fillDemo(u)}>
+                <div className="demo-avatar" style={{ background: u.color }}>{u.name[0]}</div>
+                <div className="demo-user-info">
+                  <div className="demo-name">{u.name}</div>
+                  <div className="demo-email">{u.email} · password123</div>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
 }
+

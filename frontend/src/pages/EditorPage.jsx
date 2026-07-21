@@ -20,10 +20,53 @@ export default function EditorPage() {
   const [saveStatus, setSaveStatus]   = useState('saved') // 'saved' | 'saving' | 'error'
   const [showShare, setShowShare]     = useState(false)
   const [showUpload, setShowUpload]   = useState(false)
+  const [showExport, setShowExport]   = useState(false)
   const [deleting, setDeleting]       = useState(false)
 
   const saveTimer = useRef(null)
   const editorRef = useRef(null)
+  const exportRef = useRef(null)
+
+  // Click outside export dropdown handler
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (exportRef.current && !exportRef.current.contains(event.target)) {
+        setShowExport(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // Export document handler
+  const handleExport = async (format) => {
+
+    try {
+      const res = await api.get(`/documents/${activeDocId}/export`, {
+        params: { format },
+        responseType: 'blob',
+      })
+      const blob = new Blob([res.data], { type: res.headers['content-type'] })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      
+      const disposition = res.headers['content-disposition']
+      let filename = `${title || 'document'}.${format}`
+      if (disposition && disposition.indexOf('filename=') !== -1) {
+        const matches = /filename="([^"]+)"/.exec(disposition)
+        if (matches != null && matches[1]) filename = matches[1]
+      }
+      
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (e) {
+      alert('Failed to export document. Please try again.')
+    }
+  }
 
   // Load active document
   useEffect(() => {
@@ -149,6 +192,29 @@ export default function EditorPage() {
                     📁 Import
                   </button>
                 )}
+
+                {/* Export Dropdown */}
+                <div ref={exportRef} className="export-dropdown-container" style={{ position: 'relative' }}>
+                  <button className="btn btn-ghost" onClick={() => setShowExport(!showExport)} title="Export document">
+                    📥 Export
+                  </button>
+                  {showExport && (
+                    <div className="export-dropdown-menu">
+                      <button className="export-dropdown-item" onClick={() => { handleExport('pdf'); setShowExport(false); }}>
+                        📄 PDF (.pdf)
+                      </button>
+                      <button className="export-dropdown-item" onClick={() => { handleExport('md'); setShowExport(false); }}>
+                        📝 Markdown (.md)
+                      </button>
+                      <button className="export-dropdown-item" onClick={() => { handleExport('html'); setShowExport(false); }}>
+                        🌐 HTML (.html)
+                      </button>
+                      <button className="export-dropdown-item" onClick={() => { handleExport('txt'); setShowExport(false); }}>
+                        🔤 Plain Text (.txt)
+                      </button>
+                    </div>
+                  )}
+                </div>
 
                 {/* Share */}
                 {isOwner && (

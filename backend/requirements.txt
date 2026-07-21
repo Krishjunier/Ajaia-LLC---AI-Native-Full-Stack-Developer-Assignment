@@ -11,3 +11,4 @@ bcrypt
 pytest
 httpx
 pytest-asyncio
+xhtml2pdf
